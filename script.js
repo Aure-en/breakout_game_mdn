@@ -16,6 +16,23 @@ let paddleX = (canvas.width - paddleWidth) / 2;
 let dx = 2;
 let dy = -2;
 
+// Bricks
+const brickRowCount = 3;
+const brickColumnCount = 5;
+const brickWidth = 75;
+const brickHeight = 20;
+const brickPadding = 10;
+const brickOffsetTop = 30;
+const brickOffsetLeft = 30;
+
+const bricks = [];
+for (let column = 0 ; column < brickColumnCount; column++) {
+  bricks[column] = [];
+  for (let row = 0; row < brickRowCount; row++) {
+    bricks[column][row] = { x: 0, y: 0 };
+  }
+}
+
 // Player controls
 let rightPressed = false;
 let leftPressed = false;
@@ -44,14 +61,29 @@ function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBall();
   drawPaddle();
+  drawBricks();
 
   // Ball coordinates
-  if(y + dy < ballRadius || y + dy > canvas.height - ballRadius) {
-    dy = -dy;
+
+  // Left and right boundaries
+  if (x + dx < ballRadius / 2 || x + dx > canvas.width - ballRadius / 2) {
+    dx = -dx;
   }
 
-  if (x + dx < ballRadius || x + dx > canvas.width - ballRadius) {
-    dx = -dx;
+  // Top boundary
+  if (y + dy < ballRadius / 2) {
+    dy = -dy;
+    // Bottom boundary
+  } else if (y + dy > canvas.height - ballRadius) {
+
+    // If we hit the paddle, it is ok.
+    if (x > paddleX && x < paddleX + paddleWidth) {
+      dy = -dy;
+    } else {
+      alert("Game over");
+      document.location.reload();
+      clearInterval(interval);
+    }
   }
 
   // Paddle coordinates
@@ -88,4 +120,23 @@ function drawPaddle() {
   ctx.closePath();
 }
 
-setInterval(draw, 10);
+function drawBricks() {
+  for (let column = 0; column < brickColumnCount; column++) {
+    for (let row = 0; row < brickRowCount; row++) {
+
+      const brickX = (column * (brickWidth + brickPadding)) + brickOffsetLeft;
+      const brickY = (row * (brickHeight + brickPadding)) + brickOffsetTop;
+
+      bricks[column][row].x = brickX;
+      bricks[column][row].y = brickY;
+
+      ctx.beginPath();
+      ctx.rect(brickX, brickY, brickWidth, brickHeight);
+      ctx.fillStyle = "#0095DD";
+      ctx.fill();
+      ctx.closePath();
+    }
+  }
+}
+
+const interval = setInterval(draw, 10);
