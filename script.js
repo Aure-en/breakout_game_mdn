@@ -33,8 +33,9 @@ for (let column = 0 ; column < brickColumnCount; column++) {
   }
 }
 
-// Score
+// Score and lives
 let score = 0;
+let lives = 3;
 
 // Player controls
 let rightPressed = false;
@@ -42,6 +43,7 @@ let leftPressed = false;
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
+document.addEventListener("mousemove", mouseMoveHandler, false);
 
 function keyDownHandler(e) {
   if (e.key === 'Right' || e.key === 'ArrowRight') {
@@ -56,6 +58,13 @@ function keyUpHandler(e) {
     rightPressed = false;
   } else if (e.key === 'Left' || e.key === 'ArrowLeft') {
     leftPressed = false;
+  }
+}
+
+function mouseMoveHandler(e) {
+  const relativeX = e.clientX - canvas.offsetLeft;
+  if (relativeX > 0 && relativeX < canvas.width) {
+    paddleX = relativeX - paddleWidth / 2;
   }
 }
 
@@ -79,7 +88,6 @@ function collisionDetection() {
         if (score === brickRowCount * brickColumnCount) {
           alert("You win, congratulations");
           document.location.reload();
-          clearInterval(interval);
         }
 
       }
@@ -94,6 +102,7 @@ function draw() {
   drawPaddle();
   drawBricks();
   drawScore();
+  drawLives();
   collisionDetection();
 
   // Ball coordinates
@@ -112,10 +121,12 @@ function draw() {
     // If we hit the paddle, it is ok.
     if (x > paddleX && x < paddleX + paddleWidth) {
       dy = -dy;
-    } else {
+    } else if (lives > 0) {
+      lives--;
+      dy = -dy;
+    } else if (lives === 0) {
       alert("Game over");
       document.location.reload();
-      clearInterval(interval);
     }
   }
 
@@ -135,6 +146,9 @@ function draw() {
 
   x += dx;
   y += dy;
+
+
+requestAnimationFrame(draw);
 }
 
 function drawBall() {
@@ -180,4 +194,10 @@ function drawScore() {
   ctx.fillText("Score: " + score, 8, 20)
 }
 
-const interval = setInterval(draw, 10);
+function drawLives() {
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "#0095DD"
+  ctx.fillText("Lives: " + lives, canvas.width - 65, 20);
+}
+
+draw();
