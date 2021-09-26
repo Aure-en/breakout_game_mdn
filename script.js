@@ -33,6 +33,9 @@ for (let column = 0 ; column < brickColumnCount; column++) {
   }
 }
 
+// Score
+let score = 0;
+
 // Player controls
 let rightPressed = false;
 let leftPressed = false;
@@ -71,6 +74,14 @@ function collisionDetection() {
       {
         brick.status = 0;
         dy = -dy;
+        score += 1;
+
+        if (score === brickRowCount * brickColumnCount) {
+          alert("You win, congratulations");
+          document.location.reload();
+          clearInterval(interval);
+        }
+
       }
     }
   }
@@ -82,6 +93,7 @@ function draw() {
   drawBall();
   drawPaddle();
   drawBricks();
+  drawScore();
   collisionDetection();
 
   // Ball coordinates
@@ -160,6 +172,12 @@ function drawBricks() {
       }
     }
   }
+}
+
+function drawScore() {
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "#0095DD"
+  ctx.fillText("Score: " + score, 8, 20)
 }
 
 const interval = setInterval(draw, 10);
